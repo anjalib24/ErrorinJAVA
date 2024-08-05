@@ -1,0 +1,138 @@
+In Java 8, error handling remains consistent with earlier versions, but Java 8 introduced some new features and patterns that can affect error handling practices. Here’s a breakdown of different types of errors in Java and how they relate to Java 8 features:
+
+### 1. **Checked Exceptions**
+
+Checked exceptions are exceptions that are checked at compile-time. They must be either caught or declared to be thrown. Examples include `IOException`, `SQLException`, etc.
+
+**Example:**
+```java
+import java.io.*;
+
+public class CheckedExceptionExample {
+    public static void main(String[] args) {
+        try {
+            readFile("file.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void readFile(String fileName) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        // Read file content...
+        reader.close();
+    }
+}
+```
+
+### 2. **Unchecked Exceptions**
+
+Unchecked exceptions are exceptions that are not checked at compile-time but at runtime. They inherit from `RuntimeException`. Examples include `NullPointerException`, `ArrayIndexOutOfBoundsException`, `IllegalArgumentException`, etc.
+
+**Example:**
+```java
+public class UncheckedExceptionExample {
+    public static void main(String[] args) {
+        int[] numbers = new int[5];
+        try {
+            numbers[10] = 1; // This will throw ArrayIndexOutOfBoundsException
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+### 3. **Error Handling with Java 8 Features**
+
+#### **Lambda Expressions**
+
+Lambda expressions themselves don’t directly change how errors are handled, but they often work with functional interfaces and the Stream API, which might throw checked exceptions.
+
+**Handling Checked Exceptions in Lambdas:**
+
+Since lambda expressions cannot directly throw checked exceptions, you might need to wrap such exceptions in runtime exceptions or use utility methods to handle them.
+
+**Example:**
+```java
+import java.util.function.Function;
+
+public class LambdaExceptionExample {
+    public static void main(String[] args) {
+        Function<String, Integer> parseInt = str -> {
+            try {
+                return Integer.parseInt(str);
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("Invalid number format", e);
+            }
+        };
+
+        System.out.println(parseInt.apply("123")); // Prints: 123
+        System.out.println(parseInt.apply("abc")); // Throws RuntimeException
+    }
+}
+```
+
+#### **Stream API**
+
+Streams often deal with collections and can handle exceptions during processing. You need to handle exceptions within the lambda expressions used in stream operations.
+
+**Example:**
+```java
+import java.util.*;
+import java.util.stream.*;
+
+public class StreamExceptionExample {
+    public static void main(String[] args) {
+        List<String> data = Arrays.asList("1", "2", "a", "4");
+
+        List<Integer> numbers = data.stream()
+            .map(str -> {
+                try {
+                    return Integer.parseInt(str);
+                } catch (NumberFormatException e) {
+                    return null; // or handle it differently
+                }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+        System.out.println(numbers); // Prints: [1, 2, 4]
+    }
+}
+```
+
+### 4. **Exception Handling Patterns**
+
+Java 8 also introduced some patterns and best practices for exception handling:
+
+- **Use `Optional` to Avoid Nulls**: Use `Optional` to handle cases where a value might be null, thus avoiding `NullPointerException`.
+
+**Example:**
+```java
+import java.util.Optional;
+
+public class OptionalExample {
+    public static void main(String[] args) {
+        Optional<String> optional = Optional.ofNullable(getString());
+
+        // Handle the case where the value might be null
+        optional.ifPresentOrElse(
+            value -> System.out.println("Value: " + value),
+            () -> System.out.println("Value is missing")
+        );
+    }
+
+    public static String getString() {
+        return null; // Simulate a missing value
+    }
+}
+```
+
+### Summary
+
+- **Checked Exceptions**: Must be caught or declared in the method signature.
+- **Unchecked Exceptions**: Do not need to be explicitly handled.
+- **Lambda Expressions and Streams**: Need special handling for checked exceptions.
+- **Exception Handling Patterns**: Use modern patterns like `Optional` to avoid common pitfalls.
+

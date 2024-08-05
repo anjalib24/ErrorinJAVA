@@ -1,0 +1,139 @@
+Handling exceptions in Java 8 can be streamlined with modern features like lambda expressions and the Stream API. Here’s how you can handle exceptions in different scenarios using Java 8 features:
+
+### 1. **Handling Exceptions in Lambda Expressions**
+
+Lambda expressions themselves cannot throw checked exceptions directly. However, you can handle exceptions inside lambda expressions or use utility methods to deal with exceptions. Here’s an approach to handling exceptions within lambda expressions:
+
+#### Example: Wrapping Checked Exceptions
+
+To handle checked exceptions in lambda expressions, you can create a utility method to wrap checked exceptions in unchecked exceptions.
+
+```java
+import java.util.function.Function;
+
+public class LambdaExceptionHandlingExample {
+    public static void main(String[] args) {
+        // Wrap a lambda expression with checked exception handling
+        Function<String, Integer> safeParseInt = wrapException(str -> Integer.parseInt(str));
+
+        try {
+            System.out.println(safeParseInt.apply("123")); // Prints: 123
+            System.out.println(safeParseInt.apply("abc")); // Throws RuntimeException
+        } catch (RuntimeException e) {
+            System.err.println("Exception: " + e.getCause());
+        }
+    }
+
+    // Utility method to wrap checked exceptions
+    public static <T, R> Function<T, R> wrapException(CheckedFunction<T, R> function) {
+        return t -> {
+            try {
+                return function.apply(t);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    // Functional interface to handle checked exceptions
+    @FunctionalInterface
+    interface CheckedFunction<T, R> {
+        R apply(T t) throws Exception;
+    }
+}
+```
+
+### 2. **Handling Exceptions in Streams**
+
+When using the Stream API, you can encounter checked exceptions within stream operations. Here’s how to handle exceptions in stream operations:
+
+#### Example: Handling Checked Exceptions in Streams
+
+To manage exceptions in streams, you often need to handle them inside the lambda expressions used in stream operations:
+
+```java
+import java.util.*;
+import java.util.stream.*;
+
+public class StreamExceptionHandlingExample {
+    public static void main(String[] args) {
+        List<String> data = Arrays.asList("1", "2", "a", "4");
+
+        List<Integer> numbers = data.stream()
+            .map(str -> {
+                try {
+                    return Integer.parseInt(str);
+                } catch (NumberFormatException e) {
+                    // Handle the exception, e.g., log it or return a default value
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+
+        System.out.println(numbers); // Prints: [1, 2, 4]
+    }
+}
+```
+
+### 3. **Handling Exceptions with `Optional`**
+
+`Optional` can help manage situations where a value might be missing or an exception might occur. Use `Optional` to avoid `NullPointerException` and handle missing values gracefully.
+
+#### Example: Using `Optional` to Handle Missing Values
+
+```java
+import java.util.Optional;
+
+public class OptionalExceptionHandlingExample {
+    public static void main(String[] args) {
+        Optional<String> optionalValue = Optional.ofNullable(getString());
+
+        optionalValue.ifPresentOrElse(
+            value -> System.out.println("Value: " + value),
+            () -> System.out.println("Value is missing")
+        );
+    }
+
+    public static String getString() {
+        return null; // Simulate a missing value
+    }
+}
+```
+
+### 4. **Custom Exception Handling**
+
+For more complex scenarios, you can define custom exceptions and handle them as needed.
+
+#### Example: Custom Exception Handling
+
+```java
+class CustomException extends Exception {
+    public CustomException(String message) {
+        super(message);
+    }
+}
+
+public class CustomExceptionHandlingExample {
+    public static void main(String[] args) {
+        try {
+            throwCustomException();
+        } catch (CustomException e) {
+            System.err.println("Caught custom exception: " + e.getMessage());
+        }
+    }
+
+    public static void throwCustomException() throws CustomException {
+        throw new CustomException("This is a custom exception");
+    }
+}
+```
+
+### Summary
+
+- **Lambda Expressions**: Use utility methods to handle checked exceptions or wrap them in runtime exceptions.
+- **Streams**: Handle exceptions inside lambda expressions used in stream operations.
+- **`Optional`**: Use `Optional` to manage missing values and avoid `NullPointerException`.
+- **Custom Exceptions**: Define and handle custom exceptions for specific use cases.
+
+Handling exceptions effectively in Java 8 involves using these modern features to make code more robust and maintainable. If you need more details or examples, feel free to ask!

@@ -1,0 +1,120 @@
+In Java 8, exceptions are classified into several types, each serving a different purpose. Understanding these types helps in designing effective error handling mechanisms. Here’s a summary of the different types of exceptions:
+
+### **1. Checked Exceptions**
+
+- **Definition**: These exceptions are checked at compile-time. The compiler ensures that these exceptions are either caught in a try-catch block or declared in the method signature with the `throws` keyword.
+- **Examples**: `IOException`, `SQLException`, `ClassNotFoundException`.
+- **Handling**: Must be handled explicitly by the programmer.
+
+**Example:**
+```java
+import java.io.*;
+
+public class CheckedExceptionExample {
+    public static void main(String[] args) {
+        try {
+            readFile("file.txt");
+        } catch (IOException e) {
+            System.err.println("Caught an IOException: " + e.getMessage());
+        }
+    }
+
+    public static void readFile(String fileName) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+        // Read file content...
+        reader.close();
+    }
+}
+```
+
+### **2. Unchecked Exceptions**
+
+- **Definition**: These exceptions are not checked at compile-time but are checked at runtime. They extend `RuntimeException` and do not need to be declared in the method signature.
+- **Examples**: `NullPointerException`, `ArrayIndexOutOfBoundsException`, `IllegalArgumentException`.
+- **Handling**: Optional; you can handle them if desired, but they are typically indicative of programming errors.
+
+**Example:**
+```java
+public class UncheckedExceptionExample {
+    public static void main(String[] args) {
+        try {
+            String str = null;
+            System.out.println(str.length()); // This will throw NullPointerException
+        } catch (NullPointerException e) {
+            System.err.println("Caught a NullPointerException: " + e.getMessage());
+        }
+    }
+}
+```
+
+### **3. Errors**
+
+- **Definition**: Errors are used to indicate serious problems that a reasonable application should not try to catch. These are usually related to the JVM or system environment and are typically fatal.
+- **Examples**: `OutOfMemoryError`, `StackOverflowError`, `VirtualMachineError`.
+- **Handling**: Generally not handled; they indicate severe problems that typically terminate the application.
+
+**Example:**
+```java
+public class ErrorExample {
+    public static void main(String[] args) {
+        try {
+            throw new StackOverflowError("Simulating a stack overflow error");
+        } catch (Error e) {
+            System.err.println("Caught an Error: " + e.getMessage());
+        }
+    }
+}
+```
+
+### **4. Custom Exceptions**
+
+- **Definition**: Custom exceptions are user-defined exceptions that extend either `Exception` or `RuntimeException`. They are used to represent specific error conditions relevant to the application.
+- **Examples**: Creating exceptions for business logic or application-specific errors.
+
+**Example:**
+```java
+class CustomException extends Exception {
+    public CustomException(String message) {
+        super(message);
+    }
+}
+
+public class CustomExceptionExample {
+    public static void main(String[] args) {
+        try {
+            throw new CustomException("This is a custom exception");
+        } catch (CustomException e) {
+            System.err.println("Caught a CustomException: " + e.getMessage());
+        }
+    }
+}
+```
+
+### **5. Multiple Exception Handling**
+
+- **Definition**: Java 8 introduced the ability to handle multiple exceptions in a single `catch` block using the multi-catch syntax.
+- **Examples**: Catching multiple exceptions in a single `catch` block.
+
+**Example:**
+```java
+public class MultiCatchExample {
+    public static void main(String[] args) {
+        try {
+            // Code that might throw multiple exceptions
+            throw new IOException("IO error occurred");
+        } catch (IOException | ArithmeticException e) {
+            System.err.println("Caught an exception: " + e.getMessage());
+        }
+    }
+}
+```
+
+### **Summary**
+
+- **Checked Exceptions**: Must be handled or declared; checked at compile-time.
+- **Unchecked Exceptions**: Not required to be handled; checked at runtime.
+- **Errors**: Serious problems related to the JVM; generally not handled.
+- **Custom Exceptions**: User-defined exceptions for application-specific errors.
+- **Multiple Exception Handling**: Handle multiple exceptions in a single `catch` block.
+
+Understanding these exception types helps in writing more robust and maintainable code by applying appropriate error handling strategies. If you need further details or examples, let me know!

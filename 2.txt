@@ -1,0 +1,60 @@
+In Java, an **`InvocationTargetException`** is a specific type of exception that occurs during reflective method invocation. It’s used to wrap exceptions thrown by methods that are invoked via reflection. Here's an overview:
+
+### What is `InvocationTargetException`?
+
+- **Purpose**: It is a wrapper exception that encapsulates exceptions thrown by methods or constructors when they are invoked through reflection. It is used to provide a single type of exception to handle errors occurring during reflective calls.
+- **Hierarchy**: `InvocationTargetException` extends `ReflectiveOperationException`, which itself is a subclass of `Exception`.
+
+### When Does It Occur?
+
+`InvocationTargetException` is thrown by methods in the `java.lang.reflect` package, such as `Method.invoke()` and `Constructor.newInstance()`, when the invoked method or constructor throws an exception.
+
+### Key Methods
+
+- **`getTargetException()`**: Returns the exception thrown by the invoked method or constructor.
+
+### Example
+
+Here’s an example that demonstrates how `InvocationTargetException` can occur and how to handle it:
+
+```java
+import java.lang.reflect.Method;
+
+public class InvocationTargetExceptionExample {
+    public static void main(String[] args) {
+        try {
+            // Using reflection to invoke a method
+            Method method = ExampleClass.class.getMethod("exampleMethod");
+            method.invoke(new ExampleClass());
+        } catch (Exception e) {
+            if (e instanceof InvocationTargetException) {
+                // Handle the underlying exception thrown by the invoked method
+                Throwable cause = ((InvocationTargetException) e).getTargetException();
+                System.out.println("Exception thrown by the method: " + cause);
+            } else {
+                // Handle other exceptions
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+class ExampleClass {
+    public void exampleMethod() throws Exception {
+        throw new Exception("An exception occurred inside exampleMethod");
+    }
+}
+```
+
+### Explanation
+
+1. **Reflection Setup**: We use reflection to get a method `exampleMethod` from `ExampleClass` and invoke it.
+2. **Exception Handling**: The method `exampleMethod` throws an `Exception`. When invoked via reflection, it’s wrapped in an `InvocationTargetException`.
+3. **Unwrapping the Exception**: The `InvocationTargetException` is caught, and the original exception thrown by `exampleMethod` is retrieved using `getTargetException()`.
+
+### Summary
+
+- **`InvocationTargetException`** is used to wrap exceptions thrown by methods or constructors invoked via reflection.
+- **Handling**: Catch `InvocationTargetException` and use `getTargetException()` to access the underlying exception.
+- **Use Cases**: Commonly encountered in scenarios involving reflection, such as frameworks and libraries that use reflection to dynamically invoke methods.
+
